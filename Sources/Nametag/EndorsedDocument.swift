@@ -67,17 +67,32 @@ public class EndorsedDocument: Codable
 
     public func decode<T>() throws -> T where T: Decodable
     {
+        guard self.signed.isValidSignature(for: self.data) else
+        {
+            throw EndorsedDocumentError.signatureVerificationFailed
+        }
+
         let decoder = JSONDecoder()
         return try decoder.decode(T.self, from: self.data)
     }
 
-    public func decode<T>() -> T where T: Datable
+    public func decode<T>() throws -> T where T: Datable
     {
+        guard self.signed.isValidSignature(for: self.data) else
+        {
+            throw EndorsedDocumentError.signatureVerificationFailed
+        }
+
         return T.init(data: self.data)
     }
 
-    public func decode<T>() -> T? where T: MaybeDatable
+    public func decode<T>() throws -> T? where T: MaybeDatable
     {
+        guard self.signed.isValidSignature(for: self.data) else
+        {
+            throw EndorsedDocumentError.signatureVerificationFailed
+        }
+
         return T.init(data: self.data)
     }
 }
