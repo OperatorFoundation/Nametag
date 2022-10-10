@@ -1,5 +1,6 @@
 import Foundation
 
+import Dice
 import Keychain
 import Transmission
 
@@ -69,6 +70,39 @@ public struct Nametag
         }
     }
 
+    public func check(challenge: Data, clientPublicKey: PublicKey, signature: Signature) throws
+    {
+        guard clientPublicKey.isValidSignature(signature, for: challenge) else
+        {
+            throw NametagError.verificationFailed
+        }
+    }
+
+    public func checkLive(connection: Transmission.Connection) throws
+    {
+        guard let clientPublicKeyData = connection.read(size: Nametag.expectedPublicKeySize) else
+        {
+            throw NametagError.noPublicKeyReceived
+        }
+
+        let clientPublicKey = try PublicKey(type: KeyType.P256Signing, data: clientPublicKeyData)
+
+        let challenge = Data(randomWithLength: Nametag.challengeSize)
+        guard connection.write(data: challenge) else
+        {
+            throw NametagError.writeFailed
+        }
+
+        guard let signatureData = connection.read(size: Nametag.expectedSignatureSize) else
+        {
+            throw NametagError.noSignatureReceived
+        }
+
+        let signature = try Signature(type: SignatureType.P256, data: signatureData)
+
+        try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
+    }
+
     public func endorse(digest: Digest) throws -> Signature
     {
         return try self.privateKey.signature(for: digest)
@@ -97,4 +131,7 @@ public enum NametagError: Error
     case writeFailed
     case nilPublicKey
     case publicKeyWrongSize
+    case verificationFailed
+    case noPublicKeyReceived
+    case noSignatureReceived
 }

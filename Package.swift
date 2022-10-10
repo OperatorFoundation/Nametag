@@ -17,6 +17,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto", from: "2.1.0"),
         .package(url: "https://github.com/OperatorFoundation/Datable", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Dice", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Keychain", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Transmission", branch: "main"),
     ],
@@ -29,6 +30,7 @@ let package = Package(
             [
                 .product(name: "Crypto", package: "swift-crypto"),
                 "Datable",
+                "Dice",
                 "Keychain",
                 "Transmission",
             ]
