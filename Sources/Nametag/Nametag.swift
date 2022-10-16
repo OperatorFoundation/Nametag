@@ -24,7 +24,10 @@ public struct Nametag
         #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
         let keychain = Keychain()
         #else
-        let keychain = Keychain(baseDirectory: File.homeDirectory().appendingPathComponent(".nametag"))
+        guard let keychain = Keychain(baseDirectory: File.homeDirectory().appendingPathComponent(".nametag")) else
+        {
+            return nil
+        }
         #endif
 
         guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
