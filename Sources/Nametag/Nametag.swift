@@ -87,7 +87,7 @@ public struct Nametag
         }
     }
 
-    public func checkLive(connection: Transmission.Connection) throws
+    public func checkLive(connection: Transmission.Connection) throws -> PublicKey
     {
         guard let clientPublicKeyData = connection.read(size: Nametag.expectedPublicKeySize) else
         {
@@ -110,6 +110,8 @@ public struct Nametag
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
 
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
+
+        return clientPublicKey
     }
 
     public func endorse(digest: Digest) throws -> Signature
