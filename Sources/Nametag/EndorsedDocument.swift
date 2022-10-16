@@ -97,6 +97,65 @@ public class EndorsedDocument: Codable
     }
 }
 
+public class EndorsedTypedDocument<T>: Codable, MaybeDatable where T: Codable
+{
+    let object: T
+    let signed: SignaturePage
+
+    public var data: Data
+    {
+        do
+        {
+            let encoder = JSONEncoder()
+            return try encoder.encode(self)
+        }
+        catch
+        {
+            return Data()
+        }
+    }
+
+    public required convenience init?(data: Data)
+    {
+        do
+        {
+            let decoder = JSONDecoder()
+            let decoded = try decoder.decode(Self.self, from: data)
+
+            try self.init(object: decoded.object, signed: decoded.signed)
+        }
+        catch
+        {
+            return nil
+        }
+    }
+
+    public init(encodable: T, privateKey: PrivateKey) throws
+    {
+        self.object = encodable
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(encodable)
+        let signature = try privateKey.signature(for: data)
+        let publicKey = privateKey.publicKey
+        self.signed = try SignaturePage(signature: signature, publicKey: publicKey)
+    }
+
+    init(object: T, signed: SignaturePage) throws
+    {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(object)
+
+        guard signed.isValidSignature(for: data) else
+        {
+            throw EndorsedDocumentError.signatureVerificationFailed
+        }
+
+        self.object = object
+        self.signed = signed
+    }
+}
+
 public enum EndorsedDocumentError: Error
 {
     case signatureVerificationFailed
