@@ -99,8 +99,8 @@ public class EndorsedDocument: Codable
 
 public class EndorsedTypedDocument<T>: Codable, MaybeDatable where T: Codable
 {
-    let object: T
-    let signed: SignaturePage
+    public let object: T
+    public let signed: SignaturePage
 
     public var data: Data
     {
