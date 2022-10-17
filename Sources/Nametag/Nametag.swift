@@ -12,7 +12,7 @@ public struct Nametag
     static let expectedSignatureSize: Int = 64
 
     let privateKey: PrivateKey
-    let publicKey: PublicKey
+    public let publicKey: PublicKey
 
     public var data: Data?
     {
