@@ -124,6 +124,11 @@ public struct Nametag
         return try self.privateKey.signature(for: data)
     }
 
+    public func endorse<T>(object: T) throws -> EndorsedTypedDocument<T> where T: Codable
+    {
+        return try EndorsedTypedDocument(encodable: object, privateKey: self.privateKey)
+    }
+
     public func verify(signature: Signature, digest: Digest) -> Bool
     {
         return self.publicKey.isValidSignature(signature, for: digest)
