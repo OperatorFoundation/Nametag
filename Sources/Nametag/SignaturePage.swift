@@ -9,7 +9,7 @@ import Foundation
 
 import Keychain
 
-public struct SignaturePage: Codable
+public struct SignaturePage: Codable, Equatable
 {
     public let signature: Signature
     public let publicKey: PublicKey

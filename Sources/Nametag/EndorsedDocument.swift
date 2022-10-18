@@ -97,8 +97,13 @@ public class EndorsedDocument: Codable
     }
 }
 
-public class EndorsedTypedDocument<T>: Codable, MaybeDatable where T: Codable
+public class EndorsedTypedDocument<T>: Codable, Equatable, MaybeDatable where T: Codable, T: Equatable
 {
+    public static func == (lhs: EndorsedTypedDocument<T>, rhs: EndorsedTypedDocument<T>) -> Bool
+    {
+        return (lhs.object == rhs.object) && (lhs.signed == rhs.signed)
+    }
+
     public let object: T
     public let signed: SignaturePage
 
