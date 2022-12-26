@@ -2,7 +2,7 @@ import Foundation
 
 import Dice
 import Gardener
-import Keychain
+import KeychainTypes
 import Transmission
 
 public struct Nametag
@@ -19,17 +19,8 @@ public struct Nametag
         return self.publicKey.data
     }
 
-    public init?()
+    public init?(keychain: KeychainProtocol)
     {
-        #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-        let keychain = Keychain()
-        #else
-        guard let keychain = Keychain(baseDirectory: File.homeDirectory().appendingPathComponent(".nametag")) else
-        {
-            return nil
-        }
-        #endif
-
         guard let privateSigningKey = keychain.retrieveOrGeneratePrivateKey(label: "Nametag", type: KeyType.P256Signing) else
         {
             return nil
