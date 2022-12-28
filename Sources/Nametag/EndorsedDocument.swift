@@ -95,6 +95,11 @@ public class EndorsedDocument: Codable
 
         return T.init(data: self.data)
     }
+
+    public func isValidSignature() -> Bool
+    {
+        return self.signed.isValidSignature(for: self.data)
+    }
 }
 
 public class EndorsedTypedDocument<T>: Codable, Equatable, MaybeDatable where T: Codable, T: Equatable
@@ -158,6 +163,20 @@ public class EndorsedTypedDocument<T>: Codable, Equatable, MaybeDatable where T:
 
         self.object = object
         self.signed = signed
+    }
+
+    public func isValidSignature() -> Bool
+    {
+        do
+        {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(self.object)
+            return self.signed.isValidSignature(for: data)
+        }
+        catch
+        {
+            return false
+        }
     }
 }
 
