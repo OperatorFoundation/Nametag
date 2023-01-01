@@ -109,6 +109,13 @@ public class EndorsedTypedDocument<T>: Codable, Equatable, MaybeDatable where T:
         return (lhs.object == rhs.object) && (lhs.signed == rhs.signed)
     }
 
+    public static func load<T>(url: URL) throws -> EndorsedTypedDocument<T>
+    {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        return try decoder.decode(EndorsedTypedDocument<T>.self, from: data)
+    }
+
     public let object: T
     public let signed: SignaturePage
 
@@ -177,6 +184,13 @@ public class EndorsedTypedDocument<T>: Codable, Equatable, MaybeDatable where T:
         {
             return false
         }
+    }
+
+    public func save(url: URL) throws
+    {
+        let encoder = JSONEncoder()
+        let result = try encoder.encode(self)
+        try result.write(to: url)
     }
 }
 
