@@ -25,9 +25,10 @@ import Transmission
 // A connection to a server
 public class NametagClientConnection: AuthenticatingConnection
 {
+    public let network: Transmission.Connection
+
     let logger: Logger
     let nametag: Nametag
-    let network: Transmission.Connection
     let straw = Straw()
     let lock = DispatchSemaphore(value: 1)
 

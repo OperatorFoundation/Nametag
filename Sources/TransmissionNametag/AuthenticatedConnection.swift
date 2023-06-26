@@ -19,6 +19,7 @@ import TransmissionTypes
 public protocol AuthenticatedConnection
 {
     var publicKey: PublicKey { get }
+    var network: TransmissionTypes.Connection { get }
 
     init(_ base: any TransmissionTypes.Connection, _ logger: Logger) throws
 }

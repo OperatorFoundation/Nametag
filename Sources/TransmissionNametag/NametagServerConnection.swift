@@ -23,10 +23,17 @@ public class NametagServerConnection: AuthenticatedConnection
         return self.protectedPublicKey
     }
 
+    public var network: TransmissionTypes.Connection
+    {
+        return self.protectedConnection
+    }
+
+    let protectedConnection: TransmissionTypes.Connection
     let protectedPublicKey: PublicKey
 
     required public init(_ base: TransmissionTypes.Connection, _ logger: Logger) throws
     {
+        self.protectedConnection = base
         self.protectedPublicKey = try Nametag.checkLive(connection: base)
     }
 }
