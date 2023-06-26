@@ -25,7 +25,18 @@ import Transmission
 // A connection to a server
 public class NametagClientConnection: AuthenticatingConnection
 {
-    public let network: Transmission.Connection
+    public var publicKey: PublicKey
+    {
+        return self.protectedPublicKey
+    }
+
+    public var network: TransmissionTypes.Connection
+    {
+        return self.protectedConnection
+    }
+
+    let protectedConnection: TransmissionTypes.Connection
+    let protectedPublicKey: PublicKey
 
     let logger: Logger
     let nametag: Nametag
@@ -46,12 +57,12 @@ public class NametagClientConnection: AuthenticatingConnection
         let portPart = String(parts[1])
         let portInt = Int(string: portPart)
 
-        guard let network = ShadowTransmissionClientConnection(host: hostPart, port: portInt, config: config, logger: logger) else
+        guard let protectedConnection = ShadowTransmissionClientConnection(host: hostPart, port: portInt, config: config, logger: logger) else
         {
             throw NametagClientConnectionError.connectionFailed
         }
 
-        try self.init(network, nametag, logger)
+        try self.init(protectedConnection, nametag, logger)
     }
 
     public required init(_ base: TransmissionTypes.Connection, _ keychain: KeychainTypes.KeychainProtocol, _ logger: Logger) throws
@@ -61,7 +72,9 @@ public class NametagClientConnection: AuthenticatingConnection
             throw NametagClientConnectionError.nametagInitFailed
         }
 
-        self.network = base
+        self.protectedConnection = base
+        self.protectedPublicKey = nametag.publicKey
+
         self.nametag = nametag
         self.logger = logger
 
@@ -70,11 +83,13 @@ public class NametagClientConnection: AuthenticatingConnection
 
     public required init(_ base: Transmission.Connection, _ nametag: Nametag, _ logger: Logger) throws
     {
-        self.network = base
+        self.protectedConnection = base
+        self.protectedPublicKey = nametag.publicKey
+
         self.nametag = nametag
         self.logger = logger
 
-        try self.nametag.proveLive(connection: self.network)
+        try self.nametag.proveLive(connection: self.protectedConnection)
     }
 }
 
