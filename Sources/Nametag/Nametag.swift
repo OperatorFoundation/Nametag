@@ -8,7 +8,7 @@ import Transmission
 public struct Nametag
 {
     static let challengeSize: Int = 64
-    static let expectedPublicKeySize: Int = 32
+    static let expectedPublicKeySize: Int = 65
     static let expectedSignatureSize: Int = 64
 
     static public func check(challenge: Data, clientPublicKey: PublicKey, signature: Signature) throws
@@ -64,9 +64,9 @@ public struct Nametag
         self.publicKey = privateSigningKey.publicKey
     }
 
-    public func prove(challenage: Data) throws -> Signature
+    public func prove(challenge: Data) throws -> Signature
     {
-        return try self.privateKey.signature(for: challenage)
+        return try self.privateKey.signature(for: challenge)
     }
 
     public func proveLive(connection: Transmission.Connection) throws
@@ -91,7 +91,7 @@ public struct Nametag
             throw NametagError.noChallengeReceived
         }
 
-        let result = try self.prove(challenage: challenge)
+        let result = try self.prove(challenge: challenge)
         let resultData = result.data
 
         guard resultData.count == Nametag.expectedSignatureSize else
