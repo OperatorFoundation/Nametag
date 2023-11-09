@@ -78,7 +78,7 @@ public struct Nametag
 
         guard publicKeyData.count == Nametag.expectedPublicKeySize else
         {
-            throw NametagError.publicKeyWrongSize
+            throw NametagError.publicKeyWrongSize(receivedSize: publicKeyData.count, expectedSize: Nametag.expectedPublicKeySize)
         }
 
         guard connection.write(data: publicKeyData) else
@@ -137,8 +137,30 @@ public enum NametagError: Error
     case challengeResultWrongSize
     case writeFailed
     case nilPublicKey
-    case publicKeyWrongSize
+    case publicKeyWrongSize(receivedSize: Int, expectedSize: Int)
     case verificationFailed
     case noPublicKeyReceived
     case noSignatureReceived
+    
+    public var description: String
+    {
+        switch self {
+            case .noChallengeReceived:
+                return "No challenge was received."
+            case .challengeResultWrongSize:
+                return "Challenge result was the wrong size."
+            case .writeFailed:
+                return "Write failed."
+            case .nilPublicKey:
+                return "The public key cannot be nil."
+            case .publicKeyWrongSize(let receivedSize, let expectedSize):
+                return "Received a public key of \(receivedSize) bytes, expected \(expectedSize) bytes."
+            case .verificationFailed:
+                return "The verification failed."
+            case .noPublicKeyReceived:
+                return "A public key was not received."
+            case .noSignatureReceived:
+                return "A signature was not received."
+        }
+    }
 }
