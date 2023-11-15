@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AsyncAuthenticatingConnection.swift
 //  
 //
 //  Created by Dr. Brandon Wiley on 6/20/23.
@@ -21,5 +21,5 @@ public protocol AsyncAuthenticatingConnection
     var publicKey: PublicKey { get }
     var network: AsyncConnection { get }
 
-    init(_ base: any AsyncConnection, _ keychain: KeychainProtocol, _ logger: Logger) async throws
+    init(_ base: any AsyncConnection, _ keychain: any KeychainProtocol, _ logger: Logger) async throws
 }
