@@ -4,6 +4,7 @@ import Dice
 import Gardener
 import KeychainTypes
 import Transmission
+import TransmissionAsync
 
 public struct Nametag
 {
@@ -41,6 +42,20 @@ public struct Nametag
 
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
 
+        try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
+
+        return clientPublicKey
+    }
+    
+    static public func checkLive(connection: AsyncConnection) async throws -> PublicKey
+    {
+        let clientPublicKeyData = try await connection.readSize(Nametag.expectedPublicKeySize)
+        let clientPublicKey = try PublicKey(type: KeyType.P256Signing, data: clientPublicKeyData)
+        let challenge = Data(randomWithLength: Nametag.challengeSize)
+        try await connection.write(challenge)
+
+        let signatureData = try await connection.readSize(Nametag.expectedSignatureSize)
+        let signature = try Signature(type: SignatureType.P256, data: signatureData)
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
 
         return clientPublicKey
@@ -103,6 +118,32 @@ public struct Nametag
         {
             throw NametagError.writeFailed
         }
+    }
+    
+    public func proveLive(connection: AsyncConnection) async throws
+    {
+        guard let publicKeyData = self.publicKey.data else
+        {
+            throw NametagError.nilPublicKey
+        }
+
+        guard publicKeyData.count == Nametag.expectedPublicKeySize else
+        {
+            throw NametagError.publicKeyWrongSize(receivedSize: publicKeyData.count, expectedSize: Nametag.expectedPublicKeySize)
+        }
+
+        try await connection.write(publicKeyData)
+
+        let challenge = try await connection.readSize(Nametag.challengeSize)
+        let result = try self.prove(challenge: challenge)
+        let resultData = result.data
+
+        guard resultData.count == Nametag.expectedSignatureSize else
+        {
+            throw NametagError.challengeResultWrongSize
+        }
+
+        try await connection.write(resultData)
     }
 
     public func endorse(digest: Digest) throws -> Signature
