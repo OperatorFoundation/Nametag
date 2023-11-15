@@ -42,7 +42,7 @@ public class AsyncNametagClientConnection: AsyncAuthenticatingConnection
 
     var open = true
 
-    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: KeychainProtocol, logger: Logger) async throws
+    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: any KeychainProtocol, logger: Logger) async throws
     {
         guard let nametag = Nametag(keychain: keychain) else
         {
@@ -54,7 +54,7 @@ public class AsyncNametagClientConnection: AsyncAuthenticatingConnection
         try await self.init(protectedConnection, nametag, logger)
     }
 
-    public required init(_ base: AsyncConnection, _ keychain: KeychainTypes.KeychainProtocol, _ logger: Logger) async throws
+    public required init(_ base: AsyncConnection, _ keychain: any KeychainProtocol, _ logger: Logger) async throws
     {
         guard let nametag = Nametag(keychain: keychain) else
         {
