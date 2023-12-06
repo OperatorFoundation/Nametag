@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/KeychainTypes", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Transmission", branch: "main"),
-        .package(url: "git@github.com:OperatorFoundation/TransmissionAsync.git", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync.git", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionTypes", branch: "main"),
     ],
     targets: [
