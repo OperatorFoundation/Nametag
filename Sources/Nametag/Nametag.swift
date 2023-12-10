@@ -4,6 +4,7 @@ import Dice
 import Gardener
 import KeychainTypes
 import Transmission
+import TransmissionAsync
 
 public struct Nametag
 {
@@ -45,6 +46,28 @@ public struct Nametag
 
         return clientPublicKey
     }
+    
+    static public func checkLive(connection: AsyncConnection) async throws -> PublicKey
+    {
+        print("checkLive async: calling readSize \(Nametag.expectedPublicKeySize) bytes")
+        let clientPublicKeyData = try await connection.readSize(Nametag.expectedPublicKeySize)
+        print("checkLive async: read \(clientPublicKeyData.count) bytes")
+        
+        let clientPublicKey = try PublicKey(type: KeyType.P256Signing, data: clientPublicKeyData)
+        let challenge = Data(randomWithLength: Nametag.challengeSize)
+        
+        print("checkLive async: calling write")
+        try await connection.write(challenge)
+        
+        print("checkLive async: calling readSize \(Nametag.expectedSignatureSize) bytes")
+        let signatureData = try await connection.readSize(Nametag.expectedSignatureSize)
+        print("checkLive async: read \(signatureData.count) bytes")
+        
+        let signature = try Signature(type: SignatureType.P256, data: signatureData)
+        try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
+
+        return clientPublicKey
+    }
 
     let privateKey: PrivateKey
     public let publicKey: PublicKey
@@ -78,7 +101,7 @@ public struct Nametag
 
         guard publicKeyData.count == Nametag.expectedPublicKeySize else
         {
-            throw NametagError.publicKeyWrongSize
+            throw NametagError.publicKeyWrongSize(receivedSize: publicKeyData.count, expectedSize: Nametag.expectedPublicKeySize)
         }
 
         guard connection.write(data: publicKeyData) else
@@ -103,6 +126,32 @@ public struct Nametag
         {
             throw NametagError.writeFailed
         }
+    }
+    
+    public func proveLive(connection: AsyncConnection) async throws
+    {
+        guard let publicKeyData = self.publicKey.data else
+        {
+            throw NametagError.nilPublicKey
+        }
+
+        guard publicKeyData.count == Nametag.expectedPublicKeySize else
+        {
+            throw NametagError.publicKeyWrongSize(receivedSize: publicKeyData.count, expectedSize: Nametag.expectedPublicKeySize)
+        }
+
+        try await connection.write(publicKeyData)
+
+        let challenge = try await connection.readSize(Nametag.challengeSize)
+        let result = try self.prove(challenge: challenge)
+        let resultData = result.data
+
+        guard resultData.count == Nametag.expectedSignatureSize else
+        {
+            throw NametagError.challengeResultWrongSize
+        }
+
+        try await connection.write(resultData)
     }
 
     public func endorse(digest: Digest) throws -> Signature
@@ -137,8 +186,30 @@ public enum NametagError: Error
     case challengeResultWrongSize
     case writeFailed
     case nilPublicKey
-    case publicKeyWrongSize
+    case publicKeyWrongSize(receivedSize: Int, expectedSize: Int)
     case verificationFailed
     case noPublicKeyReceived
     case noSignatureReceived
+    
+    public var description: String
+    {
+        switch self {
+            case .noChallengeReceived:
+                return "No challenge was received."
+            case .challengeResultWrongSize:
+                return "Challenge result was the wrong size."
+            case .writeFailed:
+                return "Write failed."
+            case .nilPublicKey:
+                return "The public key cannot be nil."
+            case .publicKeyWrongSize(let receivedSize, let expectedSize):
+                return "Received a public key of \(receivedSize) bytes, expected \(expectedSize) bytes."
+            case .verificationFailed:
+                return "The verification failed."
+            case .noPublicKeyReceived:
+                return "A public key was not received."
+            case .noSignatureReceived:
+                return "A signature was not received."
+        }
+    }
 }

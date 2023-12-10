@@ -16,22 +16,23 @@ import Net
 import ShadowSwift
 import Straw
 import SwiftHexTools
-import Transmission
+import TransmissionAsync
 
 // A connection to a server
-public class NametagClientConnection: AuthenticatingConnection
+public class AsyncNametagClientConnection: AsyncAuthenticatingConnection
 {
+    
     public var publicKey: PublicKey
     {
         return self.protectedPublicKey
     }
 
-    public var network: TransmissionTypes.Connection
+    public var network: AsyncConnection
     {
         return self.protectedConnection
     }
 
-    let protectedConnection: TransmissionTypes.Connection
+    let protectedConnection: AsyncConnection
     let protectedPublicKey: PublicKey
 
     let logger: Logger
@@ -41,27 +42,19 @@ public class NametagClientConnection: AuthenticatingConnection
 
     var open = true
 
-    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: KeychainProtocol, logger: Logger) throws
+    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: any KeychainProtocol, logger: Logger) async throws
     {
         guard let nametag = Nametag(keychain: keychain) else
         {
             throw NametagClientConnectionError.nametagInitFailed
         }
+        
+        let protectedConnection = try await AsyncDarkstarClientConnection(config.serverIP, Int(config.serverPort), config, logger)
 
-        let parts = config.serverAddress.split(separator: ":")
-        let hostPart = String(parts[0])
-        let portPart = String(parts[1])
-        let portInt = Int(string: portPart)
-
-        guard let protectedConnection = ShadowTransmissionClientConnection(host: hostPart, port: portInt, config: config, logger: logger) else
-        {
-            throw NametagClientConnectionError.connectionFailed
-        }
-
-        try self.init(protectedConnection, nametag, logger)
+        try await self.init(protectedConnection, nametag, logger)
     }
 
-    public required init(_ base: TransmissionTypes.Connection, _ keychain: KeychainTypes.KeychainProtocol, _ logger: Logger) throws
+    public required init(_ base: AsyncConnection, _ keychain: any KeychainProtocol, _ logger: Logger) async throws
     {
         guard let nametag = Nametag(keychain: keychain) else
         {
@@ -74,10 +67,10 @@ public class NametagClientConnection: AuthenticatingConnection
         self.nametag = nametag
         self.logger = logger
 
-        try self.nametag.proveLive(connection: self.network)
+        try await self.nametag.proveLive(connection: self.network)
     }
 
-    public required init(_ base: Transmission.Connection, _ nametag: Nametag, _ logger: Logger) throws
+    public required init(_ base: AsyncConnection, _ nametag: Nametag, _ logger: Logger) async throws
     {
         self.protectedConnection = base
         self.protectedPublicKey = nametag.publicKey
@@ -85,7 +78,7 @@ public class NametagClientConnection: AuthenticatingConnection
         self.nametag = nametag
         self.logger = logger
 
-        try self.nametag.proveLive(connection: self.protectedConnection)
+        try await self.nametag.proveLive(connection: self.protectedConnection)
     }
 }
 

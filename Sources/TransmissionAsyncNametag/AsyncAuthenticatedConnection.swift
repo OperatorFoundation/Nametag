@@ -10,12 +10,12 @@ import Logging
 
 import KeychainTypes
 import Nametag
-import TransmissionTypes
+import TransmissionAsync
 
-public protocol AuthenticatedConnection
+public protocol AsyncAuthenticatedConnection
 {
     var publicKey: PublicKey { get }
-    var network: TransmissionTypes.Connection { get }
+    var network: AsyncConnection { get }
 
-    init(_ base: any TransmissionTypes.Connection, _ logger: Logger) throws
+    init(_ base: any AsyncConnection, _ logger: Logger) async throws
 }

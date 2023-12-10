@@ -10,26 +10,26 @@ import Logging
 
 import Keychain
 import Nametag
-import TransmissionTypes
+import TransmissionAsync
 
-public class NametagServerConnection: AuthenticatedConnection
+public class AsyncNametagServerConnection: AsyncAuthenticatedConnection
 {
     public var publicKey: PublicKey
     {
         return self.protectedPublicKey
     }
 
-    public var network: TransmissionTypes.Connection
+    public var network: AsyncConnection
     {
         return self.protectedConnection
     }
 
-    let protectedConnection: TransmissionTypes.Connection
+    let protectedConnection: AsyncConnection
     let protectedPublicKey: PublicKey
 
-    required public init(_ base: TransmissionTypes.Connection, _ logger: Logger) throws
+    required public init(_ base: AsyncConnection, _ logger: Logger) async throws
     {
         self.protectedConnection = base
-        self.protectedPublicKey = try Nametag.checkLive(connection: base)
+        self.protectedPublicKey = try await Nametag.checkLive(connection: base)
     }
 }

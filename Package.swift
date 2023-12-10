@@ -16,12 +16,15 @@ let package = Package(
             name: "TransmissionNametag",
             targets: ["TransmissionNametag"]
         ),
+        .library(
+            name: "TransmissionAsyncNametag",
+            targets: ["TransmissionAsyncNametag"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-crypto", from: "2.1.0"),
-
         .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/Datable", from: "4.0.0"),
         .package(url: "https://github.com/OperatorFoundation/Dice", branch: "release"),
@@ -30,6 +33,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/KeychainTypes", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/ShadowSwift", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/Transmission", branch: "release"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync.git", branch: "release"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionTypes", branch: "release"),
     ],
     targets: [
@@ -45,6 +49,7 @@ let package = Package(
                 "Gardener",
                 "Keychain",
                 "Transmission",
+                "TransmissionAsync"
             ]
         ),
         .target(
@@ -59,9 +64,20 @@ let package = Package(
                 "TransmissionTypes",
             ]
         ),
+        .target(
+            name: "TransmissionAsyncNametag",
+            dependencies:
+            [
+                "Antiphony",
+                "KeychainTypes",
+                "Nametag",
+                "ShadowSwift",
+                "TransmissionAsync",
+            ]
+        ),
         .testTarget(
             name: "NametagTests",
-            dependencies: ["Nametag"]),
+            dependencies: ["Nametag", "TransmissionNametag", "TransmissionAsyncNametag"]),
     ],
     swiftLanguageVersions: [.v5]
 )
