@@ -63,7 +63,7 @@ let package = Package(
         ),
         .testTarget(
             name: "NametagTests",
-            dependencies: ["Nametag", "TransmissionNametag", "TransmissionAsyncNametag"]),
+            dependencies: ["Nametag", "TransmissionNametag"]),
     ],
     swiftLanguageVersions: [.v5]
 )
