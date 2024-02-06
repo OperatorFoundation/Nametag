@@ -16,10 +16,6 @@ let package = Package(
             name: "TransmissionNametag",
             targets: ["TransmissionNametag"]
         ),
-        .library(
-            name: "TransmissionAsyncNametag",
-            targets: ["TransmissionAsyncNametag"]
-        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -63,17 +59,6 @@ let package = Package(
                 "ShadowSwift",
                 "Transmission",
                 "TransmissionTypes",
-            ]
-        ),
-        .target(
-            name: "TransmissionAsyncNametag",
-            dependencies:
-            [
-                "Antiphony",
-                "KeychainTypes",
-                "Nametag",
-                "ShadowSwift",
-                "TransmissionAsync",
             ]
         ),
         .testTarget(
