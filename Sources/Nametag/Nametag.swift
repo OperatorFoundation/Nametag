@@ -39,7 +39,6 @@ public struct Nametag
         {
             throw NametagError.noSignatureReceived
         }
-
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
 
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
@@ -49,20 +48,12 @@ public struct Nametag
     
     static public func checkLive(connection: AsyncConnection) async throws -> PublicKey
     {
-        print("checkLive async: calling readSize \(Nametag.expectedPublicKeySize) bytes")
         let clientPublicKeyData = try await connection.readSize(Nametag.expectedPublicKeySize)
-        print("checkLive async: read \(clientPublicKeyData.count) bytes")
-        
         let clientPublicKey = try PublicKey(type: KeyType.P256Signing, data: clientPublicKeyData)
         let challenge = Data(randomWithLength: Nametag.challengeSize)
-        
-        print("checkLive async: calling write")
         try await connection.write(challenge)
         
-        print("checkLive async: calling readSize \(Nametag.expectedSignatureSize) bytes")
         let signatureData = try await connection.readSize(Nametag.expectedSignatureSize)
-        print("checkLive async: read \(signatureData.count) bytes")
-        
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
 
