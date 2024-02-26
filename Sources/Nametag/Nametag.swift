@@ -66,7 +66,7 @@ public struct Nametag
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
         
-        print("🔖 checkLive async returning \(clientPublicKey) bytes")
+        print("🔖 checkLive async returning a client public key.")
         return clientPublicKey
     }
 
