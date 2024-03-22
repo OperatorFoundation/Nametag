@@ -48,15 +48,25 @@ public struct Nametag
     
     static public func checkLive(connection: AsyncConnection) async throws -> PublicKey
     {
+        print("🔖 checkLive async called. Attempting to readSize(\(Nametag.expectedPublicKeySize)")
         let clientPublicKeyData = try await connection.readSize(Nametag.expectedPublicKeySize)
+        print("🔖 checkLive async read \(clientPublicKeyData.count) bytes")
+        
         let clientPublicKey = try PublicKey(type: KeyType.P256Signing, data: clientPublicKeyData)
         let challenge = Data(randomWithLength: Nametag.challengeSize)
-        try await connection.write(challenge)
         
+        print("🔖 checkLive async writing \(challenge.count) bytes")
+        try await connection.write(challenge)
+        print("🔖 checkLive async wrote \(challenge.count) bytes")
+        
+        print("🔖 checkLive async reading \(Nametag.expectedSignatureSize) bytes")
         let signatureData = try await connection.readSize(Nametag.expectedSignatureSize)
+        print("🔖 checkLive async read \(Nametag.expectedSignatureSize) bytes")
+        
         let signature = try Signature(type: SignatureType.P256, data: signatureData)
         try self.check(challenge: challenge, clientPublicKey: clientPublicKey, signature: signature)
-
+        
+        print("🔖 checkLive async returning a client public key.")
         return clientPublicKey
     }
 
@@ -121,6 +131,8 @@ public struct Nametag
     
     public func proveLive(connection: AsyncConnection) async throws
     {
+        print("🔖 proveLive async called.")
+        
         guard let publicKeyData = self.publicKey.data else
         {
             throw NametagError.nilPublicKey
@@ -130,19 +142,27 @@ public struct Nametag
         {
             throw NametagError.publicKeyWrongSize(receivedSize: publicKeyData.count, expectedSize: Nametag.expectedPublicKeySize)
         }
-
+        
+        print("🔖 proveLive async writing \(publicKeyData.count) bytes.")
         try await connection.write(publicKeyData)
-
+        print("🔖 proveLive async wrote \(publicKeyData.count) bytes.")
+        
+        print("🔖 proveLive async reading \(Nametag.challengeSize) bytes.")
         let challenge = try await connection.readSize(Nametag.challengeSize)
+        print("🔖 proveLive async read \(challenge.count) bytes.")
+        
         let result = try self.prove(challenge: challenge)
+        print("🔖 proveLive prove result: \(result).")
         let resultData = result.data
 
         guard resultData.count == Nametag.expectedSignatureSize else
         {
             throw NametagError.challengeResultWrongSize
         }
-
+        
+        print("🔖 proveLive async writing \(resultData.count) bytes.")
         try await connection.write(resultData)
+        print("🔖 proveLive async wrote \(resultData.count) bytes. Finished!")
     }
 
     public func endorse(digest: Digest) throws -> Signature
