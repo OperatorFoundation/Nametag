@@ -13,7 +13,7 @@ import Datable
 import KeychainTypes
 import Nametag
 import Net
-import ShadowSwift
+//import ShadowSwift
 import Straw
 import SwiftHexTools
 import Transmission
@@ -41,25 +41,25 @@ public class NametagClientConnection: AuthenticatingConnection
 
     var open = true
 
-    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: KeychainProtocol, logger: Logger) throws
-    {
-        guard let nametag = Nametag(keychain: keychain) else
-        {
-            throw NametagClientConnectionError.nametagInitFailed
-        }
-
-        let parts = config.serverAddress.split(separator: ":")
-        let hostPart = String(parts[0])
-        let portPart = String(parts[1])
-        let portInt = Int(string: portPart)
-
-        guard let protectedConnection = ShadowTransmissionClientConnection(host: hostPart, port: portInt, config: config, logger: logger) else
-        {
-            throw NametagClientConnectionError.connectionFailed
-        }
-
-        try self.init(protectedConnection, nametag, logger)
-    }
+//    public convenience init(config: ShadowConfig.ShadowClientConfig, keychain: KeychainProtocol, logger: Logger) throws
+//    {
+//        guard let nametag = Nametag(keychain: keychain) else
+//        {
+//            throw NametagClientConnectionError.nametagInitFailed
+//        }
+//
+//        let parts = config.serverAddress.split(separator: ":")
+//        let hostPart = String(parts[0])
+//        let portPart = String(parts[1])
+//        let portInt = Int(string: portPart)
+//
+//        guard let protectedConnection = ShadowTransmissionClientConnection(host: hostPart, port: portInt, config: config, logger: logger) else
+//        {
+//            throw NametagClientConnectionError.connectionFailed
+//        }
+//
+//        try self.init(protectedConnection, nametag, logger)
+//    }
 
     public required init(_ base: TransmissionTypes.Connection, _ keychain: KeychainTypes.KeychainProtocol, _ logger: Logger) throws
     {
