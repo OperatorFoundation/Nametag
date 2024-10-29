@@ -27,11 +27,11 @@ let package = Package(
 
         .package(url: "https://github.com/OperatorFoundation/Datable", from: "4.0.1"),
         .package(url: "https://github.com/OperatorFoundation/Dice", from: "1.0.0"),
-        .package(url: "https://github.com/OperatorFoundation/Gardener", from: "0.1.2"),
-        .package(url: "https://github.com/OperatorFoundation/Keychain", from: "1.0.3"),
+        .package(url: "https://github.com/OperatorFoundation/Gardener", from: "0.1.3"),
+        .package(url: "https://github.com/OperatorFoundation/Keychain", from: "1.0.4"),
         .package(url: "https://github.com/OperatorFoundation/KeychainTypes", from: "1.0.2"),
-        .package(url: "https://github.com/OperatorFoundation/Transmission", from: "1.2.12"),
-        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", from: "0.1.5"),
+        .package(url: "https://github.com/OperatorFoundation/Transmission", from: "1.2.13"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", from: "0.1.6"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionTypes", from: "0.0.2"),
     ],
     targets: [
